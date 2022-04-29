@@ -1,74 +1,95 @@
-class Variable {
-    constructor(lit, exp) {
-        this.var = lit || 1;
-        this.exp = exp || 1;
-    };
-};
+import Variable from "./Variable.js";
 
 class Term {
     constructor(coe, ...variables) {
-        this.coe = coe || 1;
-        this.lit = {};
+        const lit = new Set;
 
-        variables.
+        this.coe = coe;
+        this.lit = lit;
+
+        if (!variables.every(Variable.is))
+            throw new Error(Term.mustBeVariable);
+
+        // ----------------------------------- //
+
+        Variable.group(...variables).map(lit.add.bind(lit));
+
+        if (!variables.length)
+            lit.add(Variable[1]);
+
+            // Quando adicionar n variáveis fazer a exponenciação
+            // Quando só tiver nada, fazer a default var;
+            // Poder adicionar vriáveis na forma de string 
     };
 
-    /*
-    set lit(c) {
-        c = String(c);
-
-        if (typeof c !== 'string') 
-        throw new Error(`Cannot assign not strings to literal part: [ ${c} ] ${typeof c}`,);
-
-        this.var = new Set(c.split(''));
+    multiply(term) {
+        return new Term(this.coe * term.coe, ...this.lit, ...term.lit);
     };
 
-    get lit() {
-        return Array.from(this.var).join('');
-    };
-    */
-
-    multiply(n) {
-        return new Term(this.coe * n, this.var, this.exp);
-    };
-
-    divide(n) {
-        return new Term(this.coe / n, this.literal, this.exp);
+    divide(term) {
+        return new Term(this.coe / term.coe, ...this.lit, ...term.lit);
     };
 
     exponentiate(n) {
-        return new Term(this.coe ** n, this.lit, this.exp * n);
+        const { lit } = this;
+        const { coe } = this;
+
+        const coefficient = coe ** n;
+        const variables = [...lit].map(variable => variable.exponentiate(n));
+
+        return new Term(coefficient, ...variables);
     };
 
     square() {
         return this.exponentiate(2); 
     };
 
+    sameLiteral(b) {
+        return Term.sameLiteral(this.lit, b.lit);
+    };
+
+    static sameLiteral(a, b) {
+        a = [...a];
+        b = [...b];
+    
+        return (
+            a.every(c => 
+            b.some(d => 
+            c.same(d))) && 
+
+            b.every(c => 
+            a.some(d => 
+            c.same(d))) 
+        );
+    };
+
     get pretty() {
+        const { coe } = this;
+        const { lit } = this;
 
-        if (this.lit === 1)
-            return `${this.coe}`;
+        let pretty = `${coe}`;
 
-        if (this.exp === 1)
-            return `${this.coe}${this.var}`;
-            return `${this.coe}${this.var}${this.exp}`;
+        lit.forEach(vrb => {
+            ( pretty += vrb.var ) && vrb.exp > 1 ?
+            ( pretty += `^${vrb.exp}` ) : false;
+        })
+
+        return pretty;
     };
 
-    union(...sets) {
-        const union = new Set;
+    // ------------ Error Logs ------------ //
 
-        for (const set of sets)
-            for (const variable of set)
-                union.add(variable);
+    static mustBeVariable = 'Variables must be instances of Variable';
 
-        return union;
-    };
+    // ------------ Error Logs ------------ //
 
-    static literal(...sets) {
-        return Array.from(Term.union(...sets)).join('');
-    };
+    static minus = new Term(-1);
 };
 
-export default Term;
+const terms = [
+    new Term(5, Variable.x, Variable.y.square()),
+    new Term(5, Variable.x, Variable.y)
+];
 
-Term.lit.x.exp
+//console.dir(term, { depth: 10 })
+export default Term;

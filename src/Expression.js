@@ -1,8 +1,10 @@
 import Term from "./Term.js";
+import Variable from "./Variable.js";
 
 class Expression {
-    constructor() {
+    constructor(...terms) {
         this.terms = new Set;
+        terms.length && this.addNth(terms);
     };
 
     get array() {
@@ -17,8 +19,11 @@ class Expression {
     };
 
     addNth(...terms) {
-        for (var term of terms.flat(1)) 
-        this.add(term);
+        terms = terms.flat();
+
+        terms.map(term => this.
+        terms.add(term))
+
         return this;
     };
 
@@ -40,24 +45,44 @@ class Expression {
         const { array } = this;
         const { terms } = this;
 
-        for (const term of terms)   
-            all.push(term.square());
-        
+        const two = new Term(2);
+
+        terms.forEach(term => 
+            all.push(term.square()))
+
         for (let i = 0, n = i + 1; i < array.length; i++, n++) {
-            n = n !== array.length? n : 0;
+            if (n === array.length)
+                n = 0;
 
-            const term = array[i];
+            const prev = array[i];
             const next = array[n];
+            const term = prev.multiply(next).multiply(two);
 
-            console.log(term, next)
-            
-            // Simple Trinominal Expression
-            if (array.length === 2) break;
+            all.push(term); 
+
+            // Simple Trinomial Expression
+            if (array.length === 2)
+            break;
         };
+
+        return new Expression().addNth(all);
     };
 
     static array(array) {
         return new Expression().addNth(...array);
+    };
+
+    get pretty() {
+        let string = '';
+        let { terms } = this;
+        let term;
+
+        for (term of terms) {
+            string += '+';
+
+            if (term.coe < 0)
+                continue strin
+        };
     };
 
     // ----------- Iteration ----------- //
@@ -73,13 +98,15 @@ class Expression {
 };
 
 const terms = [
-    new Term(1, 'x'),
+    new Term(1, Variable.x),
     new Term(5),
-    new Term(1, 'y')
 ]
 
 const enzo = new Expression().addNth(terms);
 
-enzo.square();
+//console.dir(enzo, { depth: 10 })
+const variable = new Variable('x')
+const term = new Term('4', variable);
+//console.dir(enzo.square().multiply(term), { depth: 10 });
 
 export default Expression;

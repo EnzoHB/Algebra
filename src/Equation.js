@@ -1,4 +1,6 @@
 import Expression from "./Expression.js";
+import Term from "./Term.js";
+import Variable from "./Variable.js";
 
 class Equation {
     constructor(expression) {
@@ -12,7 +14,7 @@ class Equation {
         const push = term => terms.push(term);
 
         expression.each(push);
-        equals.multiply(-1).each(push);
+        equals.multiply(Term.minus).each(push);
 
         return (
             new Equation(
@@ -20,33 +22,71 @@ class Equation {
         );
     }; 
 
-    solve(scope) {}
+    solve(scope) {
 
-    parseExpression(scope = {}) {
-        const { expression } = this;
+    }
 
-        const parsed = new Map;
-        const Variable = class { value = null; exp = new Map }; 
+    apply(scope) {
+        // Scope should vbe a map;
+        // Each key should be a variable instance with is defined  value;
+    };
 
-        for (const term of expression) {
-            const { exp } = 
-            
-            parsed.set(term.var, 
-            parsed.get(term.var) || new Variable).get(term.var);
+    parseExpression(scope) {
+        let { expression } = this;
 
-            exp.set(term.exp,
-            exp.get(term.exp) || [])
-            
-            .get(term.exp)
-            .push(term);
+        let parsed = new Map;
+        let term;
+
+        for (term of expression) {
+
+            let variables = [...term.lit];
+            let terms;
+            let info;
+            let done;
+
+            for ([ info, terms ] of parsed) {
+                if (Term.sameLiteral(info, variables)) {
+                    terms.push(term);
+
+                    done = true; 
+                    break;
+            }};
+    
+            if (done) continue;
+
+            parsed.set(variables, [ term ]);
         };
-
-        // Add support for expressions scopes;
-        for (const [ variable, number ] in scope)
-            parsed.get(variable).value = number;
 
         return parsed;
     };
 };
+
+const terms = [
+    new Term(1, new Variable('x')),
+    new Term(1, new Variable('y')),
+    new Term(1, new Variable('z'))
+];
+
+const exp = new Expression(...terms);
+const equation = new Equation(exp.square().square().square());
+
+console.log(equation.parseExpression())
+
+/*
+const expression = new Expression(terms[0], terms[1]);
+const other = new Expression(terms[2]);
+
+const equation = new Equation(expression).equals(other);
+
+equation.parseExpression()
+
+//console.dir(equation, { depth: 10 })
+
+// term.
+
+// Pegar o mapa
+/**
+ * [ { value: null, variable: [Variable] }, {   }]
+ */
 
 export default Equation;

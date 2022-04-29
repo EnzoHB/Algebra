@@ -1,6 +1,6 @@
-import Term from "./Term.js";
-import Equation from "./Equation.js";
-import Expression from "./Expression.js";
+import Term from "./src/Term.js";
+import Equation from "./src/Equation.js";
+import Expression from "./src/Expression.js";
 
 const terms = [
     new Term(2, 'x'),
